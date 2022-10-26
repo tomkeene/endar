@@ -30,4 +30,4 @@ Monitoring Agents          |
 - [ ] Improve monitoring to gather software, services, scheduled tasks (cronjobs), users and groups
 - [ ] Improve monitoring to collect process specific metrics
 - [ ] Improve deployment - currently a binary is provided by OS specific installers would be nice
-
+- [ ] Improve architecture - the current deployment architecture will not support hundreds of agents. Its probably easiest to just leverage managed solutions of a popular provider such as GCP.
