@@ -1,0 +1,187 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True,query=True,apex=True) }}
+{% endblock %}
+
+{%block header%}{%endblock%}
+{%block header_title%}Home{%endblock%}
+
+{%block content%}
+<div class="grid grid-rows-1 grid-flow-col gap-4">
+  <div class="card bg-base-100">
+    <div class="card-body">
+      <h2 class="card-title">Welcome to {{config.APP_NAME}}</h2>
+      <div class="grid grid-cols-6">
+        <div class="col-span-3">
+          <p class="text-sm font-medium text-gray-500">{{config.APP_NAME}} is a Open-Source, RMM (Remote Monitoring and Management) tool for Windows, Linux and MAC clients. Get started by installing and configuring agents.</p>
+        </div>
+        <div class="col-span-3 text-end gap-x-2">
+          {%if config.DOC_LINK%}<a href="{{config.DOC_LINK}}" class="btn btn-sm btn-primary">Get Started</a>{%endif%}
+          <a href="{{url_for("main.agents")}}" class="btn btn-sm">View Agents</a>
+          <a href="{{url_for("main.groups")}}" class="btn btn-sm">View Groups</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-cols-8 gap-4 mt-5">
+  <div class="col-span-5">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Agents Registered (60 days)</h2>
+        <div id="register-chart"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-3">
+    <div class="col-span-8 mb-4">
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Total Agents</h2>
+                            <div>
+                                <p class="font-medium text-gray-500">{{tenant.agents.count()}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="col-span-8">
+      <div class="card bg-base-100">
+        <div class="card-body">
+          <h2 class="card-title mb-4">Agents by OS</h2>
+          <div id="os-chart"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="col-span-8">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Agents Checked In (60 days)</h2>
+        <div id="checkin-chart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+  $.ajax({
+    type: "GET",
+    url: "{{url_for("api.graph_get_agent_active")}}",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+    var options = {
+        series: [{
+          "name":"Check-in agents",
+          "data":Object.values(data)
+        }],
+        chart: {
+            height: 350,
+            type: 'area'
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        xaxis: {
+            type: 'datetime',
+            categories: Object.keys(data)
+        },
+        tooltip: {
+            x: {
+                format: 'yyyy-MM-dd'
+            },
+        },
+    };
+      var chart = new ApexCharts(document.querySelector("#checkin-chart"), options);
+      chart.render();
+      return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  $.ajax({
+    type: "GET",
+    url: "{{url_for("api.graph_get_agent_registered")}}",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+    var options = {
+        series: [{
+          "name":"Registered agents",
+          "data":Object.values(data)
+        }],
+        chart: {
+            height: 350,
+            type: 'area'
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        xaxis: {
+            type: 'datetime',
+            categories: Object.keys(data)
+        },
+        tooltip: {
+            x: {
+                format: 'yyyy-MM-dd'
+            },
+        },
+    };
+      var chart = new ApexCharts(document.querySelector("#register-chart"), options);
+      chart.render();
+      console.log("render")
+      return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  $.ajax({
+    type: "GET",
+    url: "{{url_for("api.graph_get_os_count")}}",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      var options = {
+        chart: {
+          width: 380,
+          type: "donut"
+        },
+        dataLabels: {
+          enabled: false
+        },
+        series: data.series,
+        labels: data.labels,
+      };
+      var chart = new ApexCharts(document.querySelector("#os-chart"), options);
+      chart.render();
+      console.log("render")
+      return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+
+  });
+</script>
+{%endblock%}

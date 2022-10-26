@@ -1,0 +1,268 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header_title%}
+<div class="breadcrumbs p-0">
+  <ul>
+    <li><a href="{{url_for("main.agents")}}">Agents</a></li> 
+    <li class="text-primary">{{agent.hostname}}</li> 
+  </ul>
+</div>
+<p class="text-sm text-gray-500 font-medium">{{agent.key}}</p>
+{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-6 gap-4 mt-2">
+    {%if not agent.policy()%}
+    <div class="col-span-6">
+<div class="alert alert-warning shadow-lg">
+  <div>
+    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+    <span>Warning: Please ensure you have added the agent to a group and attached a policy to the group.</span>
+  </div>
+</div>
+    </div>
+    {%endif%}
+    <div class="col-span-1 h-full">
+        <ul class="menu bg-base-100 p-2 rounded-box h-full">
+            <li class="text-xl font-medium text-gray-500">
+                <p class="m-auto">Views</p>
+            </li>
+            <div class="divider my-0 px-4"></div>
+            <li>
+                <a href="{{url_for("main.view_agent",id=agent.key)}}" {%if tab_active=="summary"%}class="border-4 border-l-indigo-500 border-y-transparent border-r-transparent"{%endif%}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Summary
+                </a>
+            </li>
+            <li>
+                <a href="{{url_for("main.view_agent_performance",id=agent.key)}}" {%if tab_active=="performance"%}class="border-4 border-l-indigo-500 border-y-transparent border-r-transparent"{%endif%}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Performance
+                </a>
+            </li>
+            <li>
+                <a href="{{url_for("main.view_agent_compliance",id=agent.key)}}" {%if tab_active=="compliance"%}class="border-4 border-l-indigo-500 border-y-transparent border-r-transparent"{%endif%}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    Compliance
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="col-span-5">
+        <div class="grid grid-cols-6 gap-4 mt-2">
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Last Active</h2>
+                            <div>
+                                <p class="font-medium text-gray-500">{{agent.humanize_last_active()}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Family</h2>
+                            <div>
+                                <p class="font-medium text-gray-500">{{agent.family}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Device Type</h2>
+                            <div>
+                                <p class="font-medium text-gray-500">{{agent.install_type}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {%set effective_policy = agent.policy_format()%}
+            {%if effective_policy%}
+            <div class="col-span-6">
+<div class="collapse">
+  <input type="checkbox" class="peer" /> 
+  <div class="collapse-title rounded bg-slate-200 text-dark font-medium">
+    Show effective policy - {{effective_policy["label"]}}
+  </div>
+  <div class="collapse-content rounded bg-slate-500"> 
+    <p class="p-4 text-white"><code><pre class="text-white">{{effective_policy|tojson_pretty|safe}}</pre></code></p>
+  </div>
+</div>
+
+            </div>
+            {%endif%}
+            <div class="col-span-6">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Summary</h2>
+                        {%set primary_group = agent.primary_group()%}
+                        <div class="grid grid-cols-4 gap-4">
+                            <div><label class="text-sm font-medium text-gray-500">Hostname</label>
+                                <p class="text-sm">{{agent.hostname}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Operating System</label>
+                                <p class="text-sm">{{agent.edition}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Last Active</label>
+                                <p class="text-sm">{{agent.humanize_last_active()}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">IP Address</label>
+                                <p class="text-sm">{{agent.local_addr}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Family</label>
+                                <p class="text-sm">{{agent.family}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Enabled</label>
+                                <p class="text-sm">{%if agent.enabled%}<badge class="badge badge-success text-white">True</badge>{%else%}<badge class="badge">False</badge>{%endif%}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Version</label>
+                                <p class="text-sm">{{agent.version}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Primary Group</label>
+                                <p class="text-sm">{%if primary_group%}<a class="text-primary" href="{{url_for("main.view_group",id=primary_group.id)}}">{{primary_group.label}}</a>{%else%}<b class="text-warning">Missing Group!</b>{%endif%}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Uptime</label>
+                                <p class="text-sm">{{agent.uptime}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Memory</label>
+                                <p class="text-sm">{{agent.memory}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Device Type</label>
+                                <p class="text-sm">{{agent.install_type}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Processor</label>
+                                <p class="text-sm">{{agent.processor}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">CPU Count</label>
+                                <p class="text-sm">{{agent.cpu_count}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Logical CPU's</label>
+                                <p class="text-sm">{{agent.logical_cpu_count}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Domain Joined</label>
+                                <p class="text-sm">{%if agent.domain_joined%}<badge class="badge badge-success text-white">True</badge>{%else%}<badge class="badge">False</badge>{%endif%}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">DC</label>
+                                <p class="text-sm">{%if agent.is_dc%}<badge class="badge badge-success text-white">True</badge>{%else%}<badge class="badge">False</badge>{%endif%}</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-3">
+                <div class="card bg-base-100">
+                  <div class="card-body">
+                    <h2 class="card-title mb-4">Groups</h2>
+                    <table class="table table-vcenter table-bordered" id="group-table" style="width:100%">
+                      <thead>
+                        <tr>
+                          <th>Enabled</th>
+                          <th>Label</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {%set agent_groups = agent.groups.all()%}
+                        {%for group in groups%}
+                        <tr>
+                          <td class="text-sm font-medium text-gray-500"><input data-id={{group.id}} type="checkbox" {%if group in agent_groups%}checked="checked"{%endif%} class="group-checkbox checkbox" /></td>
+                          <td class="text-sm font-medium text-gray-500">{{group.label}}</td>
+                        </tr>
+                        {%endfor%}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+            </div>
+            <div class="col-span-3">
+                <div class="card bg-base-100">
+                  <div class="card-body">
+                    <h2 class="card-title mb-4">Tags</h2>
+                    <table class="table table-vcenter table-bordered" id="tag-table" style="width:100%">
+                      <thead>
+                        <tr>
+                          <th>Enabled</th>
+                          <th>Label</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {%set agent_tags = agent.tags.all()%}
+                        {%for tag in tags%}
+                        <tr>
+                          <td class="text-sm font-medium text-gray-500"><input data-id={{tag.id}} type="checkbox" {%if tag in agent_tags%}checked="checked"{%endif%} class="tag-checkbox checkbox" /></td>
+                          <td class="text-sm font-medium text-gray-500">{{tag.name}}</td>
+                        </tr>
+                        {%endfor%}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+//haaaaaa
+    $(document).on('change', '.tag-checkbox', function() {
+      var id = $(this).data('id')
+      if (this.checked) {
+        var status = "PUT";
+      } else {
+        var status = "DELETE";
+      }
+      $.ajax({
+        type: status,
+        url: `/api/v1/tags/${id}/agents/{{agent.id}}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", `Updated the tags for the agent`)
+          return(data)
+        },
+        error: function(errMsg) {
+          return(errMsg);
+        }
+      })
+    });
+    $(document).on('change', '.group-checkbox', function() {
+      var id = $(this).data('id')
+      if (this.checked) {
+        var status = "PUT";
+      } else {
+        var status = "DELETE";
+      }
+      $.ajax({
+        type: status,
+        url: `/api/v1/groups/${id}/agents/{{agent.id}}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", `Updated the groups for the agent`)
+          return(data)
+        },
+        error: function(errMsg) {
+          return(errMsg);
+        }
+      })
+    });
+    $("#group-table").DataTable({"pageLength":5,"order": [[ 0, "desc" ]]});
+    $("#tag-table").DataTable({"pageLength":5,"order": [[ 0, "desc" ]]});
+  });
+</script>
+{%endblock%}

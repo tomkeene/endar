@@ -1,0 +1,93 @@
+from flask import jsonify, request, current_app,abort
+from . import api
+from app.models import *
+from flask_login import login_required,current_user
+from app.utils.decorators import roles_required, has_valid_tenant_key
+import arrow
+import zlib
+
+@api.route('/register', methods=['POST'])
+@has_valid_tenant_key
+def register_agent(tenant):
+    payload = request.get_json()
+#    agent_id = tenant.register_agent(payload)
+    agent_id = "12345"
+    return jsonify({"registered":True,"msg":"agent successfully registered","agent_id":agent_id})
+
+@api.route("/compliance",methods=["GET", "POST"])
+@has_valid_tenant_key
+def get_compliance_policy(tenant):
+    if request.method == "POST":
+        data = request.get_json()
+        return jsonify({"message":"ok"})
+    policy = {
+        "uuid": "i75987987",
+        "collection": {
+          "url": "", # where to post results
+          "tasks": {
+              "get-performance": {"get": 50, "post": 60, "enabled": True}
+          }
+        }
+        "compliance":[
+            {
+                "uuid":"234",
+                "interval":300,
+                "timeout": 10,
+                "headers": {"test":"hello"},
+                "url": None, # where to post results
+                "mode": "enforce",
+                "validate": {
+                  "exec": True,
+                  "cmd": "powershell.exe write-host hello; exit 0"
+                },
+                "enforce": {
+                  "exec": False,
+                  "url":"http://spate.darkbanner.com:5000/static/files/v1_9345394509345.ps1",
+                  "interpreter": "powershell.exe -ExecutionPolicy Bypass -File",
+                  "args": "-environ test",
+                  "version": "1",
+                  "file": "v1_9345394509345.ps1"
+                }
+            },
+            {
+                "uuid":"235",
+                "interval":600,
+                "timeout": 10,
+                "headers": {"test":"hello"},
+                "mode": "enforce",
+                "validate": {
+                  "exec": True,
+                  "cmd": "powershell.exe write-host hello; exit 101"
+                },
+                "enforce": {
+                  "exec": False,
+                  "url":"http://spate.darkbanner.com:5000/static/files/v1_9345394509345.ps1",
+                  "interpreter": "powershell.exe -ExecutionPolicy Bypass -File",
+                  "args": "-environ test",
+                  "version": "1",
+                  "file": "v1_9345394509345.ps1"
+                }
+            }
+        ]
+    }
+    return jsonify(policy)
+
+@api.route('/health/<string:agent_id>', methods=['POST'])
+def agent_health(agent_id):
+    print(request.get_json())
+    return jsonify({"msg":"ok"})
+
+@api.route('/uninstall/<string:agent_id>', methods=['GET'])
+def uninstall_agent(agent_id):
+    return jsonify({"uninstall":False})
+
+@api.route('/shell/<string:agent_id>', methods=['GET'])
+def shell_agent(agent_id):
+    return jsonify({"shell":False})
+
+@api.route("/collection",methods=["POST"])
+@has_valid_tenant_key
+def data_collection(tenant):
+    data = zlib.decompress(request.data).decode("utf-8")
+    print(data)
+    return jsonify({})

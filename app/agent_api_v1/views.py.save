@@ -1,0 +1,91 @@
+from flask import jsonify, request, current_app,abort
+from . import api
+from app.models import *
+from flask_login import login_required,current_user
+from app.utils.decorators import roles_required
+import arrow
+import zlib
+
+@api.route('/register', methods=['POST'])
+def register_agent():
+    payload = request.get_json()
+    token = request.headers.get("tenant-key")
+    tenant = Tenant.query.filter(Tenant.token == token).first()
+    if not tenant:
+        return jsonify({"registered":False,"msg":"invalid token"}),424
+#    agent_id = tenant.register_agent(payload)
+    agent_id = "12345"
+    return jsonify({"registered":True,"msg":"agent successfully registered","agent_id":agent_id})
+
+@api.route("/job/<string:agent_id>",methods=["GET","POST"])
+def get_job(agent_id):
+    job = {
+        "tasks": [
+#            {"task":"get-connection","status":"off","interval":2},
+            {"task":"get-user","status":"off","interval":2},
+#            {"task":"get-group","status":"off","interval":2},
+#            {"task":"get-platform","status":"off","interval":2},
+#            {"task":"get-scan","status":"on","interval":2}
+        ]
+    }
+    return jsonify(job)
+
+@api.route("/policy",methods=["GET"])
+def get_policy():
+    policy = {
+        "uuid": "i75987987",
+        "interval":50,
+        "shell":False,
+        "uninstall":False,
+        "compliance":[
+            {
+                "uuid":"234",
+                "timeout": 10,
+                "headers": {},
+                "mode": "enforce",
+                "validate": {
+                  "exec": True,
+                  "cmd": "powershell.exe write-host hello; exit 101"
+                },
+                "enforce": {
+                  "exec": False,
+                  "url":"http://spate.darkbanner.com:5000/static/files/v1_9345394509345.ps1",
+                  "interpreter": "powershell.exe -ExecutionPolicy Bypass -File",
+                  "args": "-environ test",
+                  "version": "1",
+                  "file": "v1_9345394509345.ps1"
+                }
+            }
+        ]
+    }
+    return jsonify(policy)
+
+@api.route("/collection/get-connection/<string:agent_id>",methods=["POST"])
+def get_connection(agent_id):
+    data = zlib.decompress(request.data).decode("utf-8")
+    print(data)
+    return jsonify({})
+
+@api.route("/collection/get-user/<string:agent_id>",methods=["POST"])
+def get_user(agent_id):
+    data = zlib.decompress(request.data).decode("utf-8")
+    print(data)
+    return jsonify({})
+
+@api.route("/collection/get-group/<string:agent_id>",methods=["POST"])
+def get_group(agent_id):
+    data = zlib.decompress(request.data).decode("utf-8")
+    print(data)
+    return jsonify({})
+
+@api.route("/collection/get-platform/<string:agent_id>",methods=["POST"])
+def get_platform(agent_id):
+    data = zlib.decompress(request.data).decode("utf-8")
+    print(data)
+    return jsonify({})
+
+@api.route("/collection/get-scan/<string:agent_id>",methods=["POST"])
+def get_scan(agent_id):
+    data = zlib.decompress(request.data).decode("utf-8")
+    print(data)
+    return jsonify({})

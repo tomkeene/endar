@@ -1,0 +1,53 @@
+version: '3'
+services:
+  #ubuntu: # debug: docker exec -i -t ubuntu bash
+  #  image: ubuntu
+  #  command: tail -F anything
+  #  networks:
+  #    - db_nw
+  #    - web_nw
+
+  app_ui:
+    container_name: app-ui
+    image: app-ui
+    depends_on:
+      - postgres_db
+    networks:
+      - db_nw
+      - web_nw
+    ports:
+      - "8443:5000"
+    restart: unless-stopped
+    environment:
+      - SQLALCHEMY_DATABASE_URL=postgresql://db1:db1@postgres_db/db1
+      - DEFAULT_EMAIL=admin@example.com
+      - DEFAULT_PASSWORD=admin
+      - SETUP_DB=yes
+      - POSTGRES_DB=${POSTGRES_DB:-db1}
+      - DOC_LINK=https://github.com/tomkeene/endar
+      - VERSION=2.2.4
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+  postgres_db:
+    container_name: postgres_db
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-db1}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-db1}
+      POSTGRES_DB: ${POSTGRES_DB:-db1}
+      PGDATA: /data/postgres
+    #volumes:
+    #   - postgres:/data/postgres
+    #ports:
+    #  - "5432:5432"
+    networks:
+      - db_nw
+    restart: unless-stopped
+
+networks:
+  db_nw:
+    driver: bridge
+  web_nw:
+    driver: bridge
+volumes:
+  dbdata:

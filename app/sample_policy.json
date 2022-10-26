@@ -1,0 +1,60 @@
+    policy = {
+        "uuid": "i75987987",
+        "interval": 300,
+        "collection": {
+          "url": None, # where to post results
+          "headers": {"test":"hello"},
+          "tasks": [
+            {"name":"get-performance","get": 60, "post": 120, "hash_fields":[], "table":"performance"},
+          ]
+        },
+        "compliance":{
+          "url": None, # where to post results
+          "headers": {"test":"hello"},
+          "tasks": [
+              {
+                "uuid":"234",
+                "interval":300,
+                "timeout": 10,
+                "validate": {
+                  "exec": True,
+                  "cmd": "powershell.exe write-host hello; exit 0"
+                },
+                "enforce": {
+                  "exec": False,
+                  "url":"http://spate.darkbanner.com:5000/static/files/v1_9345394509345.ps1",
+                  "interpreter": "powershell.exe -ExecutionPolicy Bypass -File",
+                  "args": "-environ test",
+                  "version": "1",
+                  "file": "v1_9345394509345.ps1"
+                }
+              },
+              {
+                "uuid":"235",
+                "interval":600,
+                "timeout": 10,
+                "validate": {
+                  "exec": True,
+                  "cmd": "powershell.exe write-host hello; exit 101"
+                },
+                "enforce": {
+                  "exec": False,
+                  "url":"http://spate.darkbanner.com:5000/static/files/v1_9345394509345.ps1",
+                  "interpreter": "powershell.exe -ExecutionPolicy Bypass -File",
+                  "args": "-environ test",
+                  "version": "1",
+                  "file": "v1_9345394509345.ps1"
+                }
+              },
+              {
+                "uuid":"236",
+                "interval":600,
+                "timeout": 10,
+                "validate": {
+                  "exec": True,
+                  "cmd": "powershell.exe write-host hello; exit 101"
+                }
+              }
+          ]
+        }
+    }

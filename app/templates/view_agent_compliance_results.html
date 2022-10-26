@@ -1,0 +1,163 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header_title%}
+<div class="breadcrumbs p-0">
+  <ul>
+    <li><a href="{{url_for("main.agents")}}">Agents</a></li>
+    <li><a href="{{url_for("main.view_agent",id=agent.key)}}">{{agent.hostname}}</a></li>
+    <li><a href="{{url_for("main.view_agent_compliance",id=agent.key)}}">Compliance</a></li>
+    <li class="text-primary">{{task.label}}</li>
+  </ul>
+</div>
+{%endblock%}
+
+{%block content%}
+        <div class="grid grid-cols-8 gap-4 mt-2">
+            <div class="col-span-8">
+<div class="alert alert-success shadow-lg">
+  <div>
+    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    <span><a href="{{url_for("main.view_compliance_task_results",id=task.id)}}">Click here to view results of this compliance task across all of your agents</a></span>
+  </div>
+</div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h3 class="card-title mb-3 text-base">Validation Compliance</h3>
+                        <div class="mx-auto">
+                          {%set validate_compliance = agent.get_compliance_validation_percentage(task_id=task.id)%}
+                          {%if validate_compliance >= 80%}
+                            {%set validate_color = "success"%}
+                          {%elif validate_compliance >= 50%}
+                            {%set validate_color = "warning"%}
+                          {%else%}
+                            {%set validate_color = "error"%}
+                          {%endif%}
+                          <div class="radial-progress text-{{validate_color}}" style="--value:{{validate_compliance}};">{{validate_compliance}}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h3 class="card-title mb-3 text-base">Enforcement Compliance</h3>
+                        <div class="mx-auto">
+                          {%set enforce_compliance = agent.get_compliance_enforcement_percentage(task_id=task.id)%}
+                          {%if enforce_compliance >= 80%}
+                            {%set enforce_color = "success"%}
+                          {%elif enforce_compliance >= 50%}
+                            {%set enforce_color = "warning"%}
+                          {%else%}
+                            {%set enforce_color = "error"%}
+                          {%endif%}
+                          <div class="radial-progress text-{{enforce_color}}" style="--value:{{enforce_compliance}};">{{enforce_compliance}}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h3 class="card-title mb-3 text-base">Validation History (7 days)</h3>
+                        <div class="mx-auto">
+                          {%set validate_compliance = agent.get_compliance_validation_percentage(task_id=task.id,history=True)%}
+                          {%if validate_compliance >= 80%}
+                            {%set validate_color = "success"%}
+                          {%elif validate_compliance >= 50%}
+                            {%set validate_color = "warning"%}
+                          {%else%}
+                            {%set validate_color = "error"%}
+                          {%endif%}
+                          <div class="radial-progress text-{{validate_color}}" style="--value:{{validate_compliance}};">{{validate_compliance}}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h3 class="card-title mb-3 text-base">Enforcement History (7 days)</h3>
+                        <div class="mx-auto">
+                          {%set enforce_compliance = agent.get_compliance_enforcement_percentage(task_id=task.id,history=True)%}
+                          {%if enforce_compliance >= 80%}
+                            {%set enforce_color = "success"%}
+                          {%elif enforce_compliance >= 50%}
+                            {%set enforce_color = "warning"%}
+                          {%else%}
+                            {%set enforce_color = "error"%}
+                          {%endif%}
+                          <div class="radial-progress text-{{enforce_color}}" style="--value:{{enforce_compliance}};">{{enforce_compliance}}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-8">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-3 text-lg">Compliance Results for {{agent.hostname}}</h2>
+        <table class="table table-vcenter table-bordered" id="compliance-table" style="width:100%">
+          <thead>
+            <tr>
+              <th class="w-1">Success</th>
+              <th>Validate Output</th>
+              <th>Enforce Output</th>
+              <th class="w-1">Validate Code</th>
+              <th class="w-1">Enforce Code</th>
+              <th class="w-1">Executed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for result in results%}
+            <tr>
+              <td class="text-sm font-medium text-gray-500">{%if not result.failed()%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>{%else%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-error"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>{%endif%}</td>
+              <td class="text-sm font-medium text-gray-500"><div class="truncate w-56 validate cursor-pointer">{{result.validate}}</div></td>
+              <td class="text-sm font-medium text-gray-500"><div class="truncate w-56 enforce cursor-pointer">{{result.enforce}}</div></td>
+              <td class="text-sm font-medium text-gray-500"><p class="{%if result.validate_failed()%}text-error{%else%}text-success{%endif%}">{{result.validate_rtn_code}}</p></td>
+              <td class="text-sm font-medium text-gray-500"><p class="{%if result.enforce_failed()%}text-error{%else%}text-success{%endif%}">{{result.enforce_rtn_code}}</p></td>
+              <td class="text-sm font-medium text-gray-500">{{result.date_added}}</td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+<input type="checkbox" id="data-modal" class="modal-toggle" />
+<label for="data-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3  id="modal-title" class="text-lg font-bold"></h3>
+    <pre><code id="modal-body" class="card-body text-white bg-slate-500 rounded mt-4"></code></pre>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+//haaaaaaa
+    var table = $("#compliance-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+    table.on('click', '.validate', function() {
+      var data = $(this)[0].innerHTML
+      document.getElementById("data-modal").checked = true;
+      $("#modal-title").html("Validate Output")
+      $("#modal-body").html(data)
+    })
+    table.on('click', '.enforce', function() {
+      var data = $(this)[0].innerHTML
+      document.getElementById("data-modal").checked = true;
+      $("#modal-title").html("Enforce Output")
+      $("#modal-body").html(data)
+    })
+  });
+</script>
+{%endblock%}

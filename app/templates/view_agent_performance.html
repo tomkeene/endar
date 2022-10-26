@@ -1,0 +1,297 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True,apex=True) }}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}
+
+{%block header_title%}
+<div class="breadcrumbs p-0">
+  <ul>
+    <li><a href="{{url_for("main.agents")}}">Agents</a></li>
+    <li><a href="{{url_for("main.view_agent",id=agent.key)}}">{{agent.hostname}}</a></li>
+    <li class="text-primary">Performance</li>
+  </ul>
+</div>
+{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-6 gap-4 mt-2">
+    <div class="col-span-1 h-full">
+        <ul class="menu bg-base-100 p-2 rounded-box h-full">
+            <li class="text-xl font-medium text-gray-500">
+                <p class="m-auto">Views</p>
+            </li>
+            <div class="divider my-0 px-4"></div>
+            <li>
+                <a href="{{url_for("main.view_agent",id=agent.key)}}" {%if tab_active=="summary"%}class="border-4 border-l-indigo-500 border-y-transparent border-r-transparent"{%endif%}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Summary
+                </a>
+            </li>
+            <li>
+                <a href="{{url_for("main.view_agent_performance",id=agent.key)}}" {%if tab_active=="performance"%}class="border-4 border-l-indigo-500 border-y-transparent border-r-transparent"{%endif%}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Performance
+                </a>
+            </li>
+            <li>
+                <a href="{{url_for("main.view_agent_compliance",id=agent.key)}}" {%if tab_active=="compliance"%}class="border-4 border-l-indigo-500 border-y-transparent border-r-transparent"{%endif%}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    Compliance
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="col-span-5">
+        <div class="grid grid-cols-6 gap-4 mt-2">
+            <div class="col-span-5 mb-4">
+<input type="range" min="1" max="6" value="1" class="range range-sm" step="1" />
+<div class="w-full flex justify-between text-xs px-2">
+  <span>5 m</span>
+  <span>15 m</span>
+  <span>1 h</span>
+  <span>1 d</span>
+  <span>2 d</span>
+  <span>7 days</span>
+</div>
+            </div>
+            <div class="col-span-1 mb-4 text-end">
+              <button class="btn btn-md filter">Filter</button>
+              <button class="btn btn-md help btn-success text-white">Help</button>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Memory</h2>
+                            <div>
+                                <p class="font-medium text-gray-500">{{agent.memory}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">CPU Count</h2>
+                            <div>
+                                <p class="font-medium text-gray-500">{{agent.cpu_count}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Logical CPU</h2>
+                            <div>
+                                <p class="font-medium text-gray-500">{{agent.logical_cpu_count}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Avg. CPU Load (%)</h2>
+                        <div id="cpu-load-chart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Avg. Memory Used (%)</h2>
+                        <div id="mem-used-chart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Avg. Swap Used (%)</h2>
+                        <div id="swap-used-chart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-3">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">CPU Load Timeseries (%)</h2>
+                        <div id="load-time-chart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-3">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Used Memory Timeseries (%)</h2>
+                        <div id="mem-time-chart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-6">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Disk Partitions</h2>
+        <table class="table table-vcenter table-bordered" id="disk-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Mount</th>
+              <th>Total</th>
+              <th>Used Percent</th>
+              <th>Free</th>
+              <th>Used</th>
+              <th>Fs Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for part in disks%}
+            {%set used_percent=part.used_percent%}
+            {%if used_percent>=80%}
+              {%set used_color="error"%}
+            {%elif used_percent>=60%}
+              {%set used_color="warning"%}
+            {%else%}
+              {%set used_color="success"%}
+            {%endif%}
+            <tr>
+              <td class="text-sm font-medium text-gray-500">{{part.device}}</td>
+              <td class="text-sm font-medium text-gray-500">{{part.mount}}</td>
+              <td class="text-sm font-medium text-gray-500">{{part.total}}</td>
+              <td class="text-sm font-medium text-gray-500"><progress class="progress progress-{{used_color}} w-56" value="{{used_percent}}" max="100"></progress></td>
+              <td class="text-sm font-medium text-gray-500">{{part.free}}</td>
+              <td class="text-sm font-medium text-gray-500">{{part.used}} <b class="text-primary text-xs">({{used_percent}}%)</b></td>
+              <td class="text-sm font-medium text-gray-500">{{part.fs_type}}</td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="checkbox" id="help-modal" class="modal-toggle" />
+<label for="help-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">Help</h3>
+    <p class="py-4">Performance metrics are collected periodically (typically 2-5 minutes) from your agents. You can filter based on the time interval to see the most updated metrics or historical metrics. If you do not see any data it is likely because your agent has not checked into the server within the last 5 minutes.</p>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+    $(document).on('click', '.help', function() {
+      document.getElementById('help-modal').checked = true;
+    });
+  
+  $(document).on('click', '.filter', function() {
+    var rangeVal = $(".range").val();
+    var mapping = {
+      1:5,
+      2:15,
+      3:60,
+      4:1440,
+      5:2880,
+      6:10080,
+    }
+    var minutes = mapping[rangeVal];
+    loadPieCharts(`/api/v1/graph/stats/performance?agent-id={{agent.id}}&span=${minutes}`);
+    memoryTimeSeries(`/api/v1/graph/stats/memory-used?agent-id={{agent.id}}&span=${minutes}`);
+    cpuLoadTimeSeries(`/api/v1/graph/stats/cpu-load?agent-id={{agent.id}}&span=${minutes}`);
+    createToast("info","Reloaded the charts")
+  });
+
+  function getPieColor(value) {
+    if (value > 75) {
+    	return "#FF4560"
+    } else if (value > 50) {
+        	return "#FEB019"
+    } else {
+      return "#00E396"
+    }
+  };
+  function loadPieCharts(url) {
+  $.ajax({
+    type: "GET",
+    url: url,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      // memory used 
+      $("#cpu-load-chart").html("")
+      var options = {
+        chart: {type: "donut"},
+        dataLabels: {enabled: false},
+        legend: {show: false},
+        series: [data["cpu-load"],100-data["cpu-load"]],
+        colors:[getPieColor(data["cpu-load"]), '#f0f4f5']
+      };
+      var chart = new ApexCharts(document.querySelector("#cpu-load-chart"), options);
+      chart.render()
+      // memory used 
+      $("#mem-used-chart").html("")
+      var options = {
+        chart: {type: "donut"},
+        dataLabels: {enabled: false},
+        legend: {show: false},
+        series: [data["mem-percent-used"],100-data["mem-percent-used"]],
+        colors:[getPieColor(data["mem-percent-used"]), '#f0f4f5']
+      };
+      var chart = new ApexCharts(document.querySelector("#mem-used-chart"), options);
+      chart.render()
+      // swapped used 
+      $("#swap-used-chart").html("")
+      var options = {
+        chart: {type: "donut"},
+        dataLabels: {enabled: false},
+        legend: {show: false},
+        series: [data["swap-percent-used"],100-data["swap-percent-used"]],
+        colors:[getPieColor(data["swap-percent-used"]), '#f0f4f5']
+      };
+      var chart = new ApexCharts(document.querySelector("#swap-used-chart"), options);
+      chart.render()
+
+      // line chart of mem percent used
+      
+      return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  };
+  loadPieCharts("/api/v1/graph/stats/performance?agent-id={{agent.id}}&span=5")
+  memoryTimeSeries("/api/v1/graph/stats/memory-used?agent-id={{agent.id}}&span=5")
+  cpuLoadTimeSeries("/api/v1/graph/stats/cpu-load?agent-id={{agent.id}}&span=5")
+  $("#disk-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+});
+</script>
+{%endblock%}

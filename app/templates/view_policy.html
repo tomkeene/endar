@@ -1,0 +1,140 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header_title%}
+<div class="breadcrumbs p-0">
+  <ul>
+    <li><a href="{{url_for("main.policies")}}">Policies</a></li>
+    <li class="text-primary">{{policy.label}}</li>
+  </ul>
+</div>
+<p class="text-sm text-gray-500 font-medium">Attach tasks to your policy. If you want to create new ones, <a class="text-primary" href="{{url_for("main.compliance_tasks")}}">go here</a></p>
+{%endblock%}
+
+{%block content%}
+
+<div class="grid grid-cols-6 gap-4 mt-2">
+            {%set effective_policy = policy.generate()%}
+            {%if effective_policy%}
+            <div class="col-span-6">
+<div class="collapse">
+  <input type="checkbox" class="peer" />
+  <div class="collapse-title rounded bg-slate-200 text-dark font-medium">
+    Show effective policy
+  </div>
+  <div class="collapse-content rounded bg-slate-500">
+    <p class="p-4 text-white"><code><pre class="text-white">{{effective_policy|tojson_pretty|safe}}</pre></code></p>
+  </div>
+</div>
+
+            </div>
+            {%endif%}
+  <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Policy</h2>
+
+      <form action="{{url_for("main.view_policy",id=policy.id)}}" method="POST">
+        <div class="overflow-hidden sm:rounded-md">
+          <div class="bg-white px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" value="{{policy.name}}" name="name" id="name" class="mt-1 border input-md block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm input-disabled">
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="label" class="block text-sm font-medium text-gray-700">Label</label>
+                <input type="text" value="{{policy.label}}" name="label" id="label" class="mt-1 border input-md block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <p class="mt-2 text-sm text-gray-500">The display name (label) of the policy</p>
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="headers" class="block text-sm font-medium text-gray-700">Headers</label>
+                <input type="text" value="{{policy.headers or ""}}" name="headers" id="headers" placeholder="{'custom-header':'12345'}" class="mt-1 border input-md block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <p class="mt-2 text-sm text-gray-500">(Optional) Custom headers to add to the request. Must be in JSON format. Usually leave this blank</p>
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="url" class="block text-sm font-medium text-gray-700">URL</label>
+                <input type="text" value="{{policy.url or ""}}" name="url" id="url" placeholder="https://custom-domain.com" class="mt-1 border input-md block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <p class="mt-2 text-sm text-gray-500">(Optional) URL to send the results to. Usually leave this blank</p>
+              </div>
+            </div>
+          </div>
+          <div class="px-4 py-3 text-right sm:px-6">
+            <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+          </div>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Compliance Tasks</h2>
+        <table class="table table-vcenter table-bordered" id="compliance-table" style="width:100%">
+          <thead>
+            <tr>
+              <th class="w-1">Enabled</th>
+              <th>Label</th>
+              <th>Tags</th>
+              <th class="w-1">Validation</th>
+              <th class="w-1">Enforcement</th>
+              <th class="w-1">Manage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for task in compliance_tasks%}
+            <tr>
+              <td class="text-sm font-medium text-gray-500"><input data-id={{task.id}} type="checkbox" {%if task in policy_compliance_tasks%}checked="checked"{%endif%} class="checkbox" /></td>
+              <td class="text-sm font-medium text-gray-500">{{task.label}}</td>
+              <td class="text-sm font-medium text-gray-500">{%for tag in task.tags.all()%}<span class="badge badge-sm mr-1">{{tag.name}}</span>{%endfor%}</td>
+              <td class="text-sm font-medium text-gray-500">{%if task.validation_enabled%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>{%else%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-error"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>{%endif%}</td>
+              <td class="text-sm font-medium text-gray-500">{%if task.enforcement_enabled%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>{%else%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-error"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>{%endif%}</td>
+              <td class="text-center">
+                <a class="btn btn-xs" href="{{url_for("main.view_compliance_task",id=task.id)}}">Edit</a>
+              </td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+//haaaaaa
+    $(document).on('change', '.checkbox', function() {
+      var id = $(this).data('id')
+      if (this.checked) {
+        var status = "enable";
+      } else {
+        var status = "disable";
+      }
+      $.ajax({
+        type: "PUT",
+        url: `/api/v1/policies/{{policy.id}}/compliance-tasks/${id}/${status}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", `Successfully ${status}d the task`)
+          return(data)
+        },
+        error: function(errMsg) {
+          return(errMsg);
+        }
+      })
+    });
+    $("#compliance-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+  });
+</script>
+{%endblock%}

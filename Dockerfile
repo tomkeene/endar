@@ -1,0 +1,23 @@
+#docker build -t dev .
+# install base
+FROM ubuntu
+
+# update the operating system:
+RUN apt-get update --fix-missing
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
+RUN apt install -y python3-pip libpq-dev libssl-dev
+
+# copy the folder to the container:
+ADD . /app
+
+# Define working directory:
+WORKDIR /app
+
+# Install the requirements
+RUN pip3 install -r /app/requirements.txt
+
+# expose tcp port 5000
+#EXPOSE 5000
+
+# default command: run the web server
+CMD ["/bin/bash","run.sh"]

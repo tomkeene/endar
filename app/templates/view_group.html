@@ -1,0 +1,136 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header_title%}
+<div class="breadcrumbs p-0">
+  <ul>
+    <li><a href="{{url_for("main.groups")}}">Groups</a></li>
+    <li class="text-primary">{{group.label}}</li>
+  </ul>
+</div>
+<p class="text-sm text-gray-500 font-medium">Attach a policy to the group and add agents to the group</p>
+{%endblock%}
+
+{%block content%}
+
+<div class="grid grid-cols-6 gap-4 mt-2">
+    {%if not group.policy_id%}
+    <div class="col-span-6">
+<div class="alert alert-warning shadow-lg">
+  <div>
+    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+    <span>Warning: Please attach a policy to the group!</span>
+  </div>
+</div>
+    </div>
+    {%endif%}
+  <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Group</h2>
+
+      <form action="{{url_for("main.view_group",id=group.id)}}" method="POST">
+        <div class="overflow-hidden sm:rounded-md">
+          <div class="bg-white px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" value="{{group.name}}" name="name" id="name" class="mt-1 border input-md block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm input-disabled">
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="label" class="block text-sm font-medium text-gray-700">Label</label>
+                <input type="text" value="{{group.label}}" name="label" id="label" class="mt-1 border input-md block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <p class="mt-2 text-sm text-gray-500">The display name (label) of the group</p>
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="precedence" class="block text-sm font-medium text-gray-700">Precedence</label>
+                <input type="number" value="{{group.precedence or 100}}" name="precedence" id="precedence" class="mt-1 border input-md block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <p class="mt-2 text-sm text-gray-500">When a policy is applied to the group, the precedence will be used. An value of 1 takes priority over 100</p>
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="policy" class="block text-sm font-medium text-gray-700">Policy</label>
+                <select name="policy" class="select select-bordered w-full">
+                  <option value="0">Select policy</option>
+                  {%for policy in policies%}
+                  <option value="{{policy.id}}" {%if policy.id == group.policy_id%}selected{%endif%}>({{policy.id}}) - {{policy.label}}</option>
+                  {%endfor%}
+                </select>
+                <p class="mt-2 text-sm text-gray-500">The attached policy for the group. Agents in this group will inherit the policy (based on precedence). {%if group.policy%}<a class="text-primary" href="{{url_for("main.view_policy",id=group.policy_id)}}">View Policy</a>{%endif%}</p>
+              </div>
+            </div>
+          </div>
+          <div class="px-4 py-3 text-right sm:px-6">
+            <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+          </div>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Agents in Group</h2>
+        <table class="table table-vcenter table-bordered" id="agent-table" style="width:100%">
+          <thead>
+            <tr>
+              <th class="w-1">Enabled</th>
+              <th class="w-1">Agent ID</th>
+              <th>Hostname</th>
+              <th class="w-1">Manage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for agent in agents%}
+            <tr>
+              <td class="text-sm font-medium text-gray-500"><input data-id={{agent.id}} type="checkbox" {%if agent in group_agents%}checked="checked"{%endif%} class="checkbox" /></td>
+              <td class="text-sm font-medium text-gray-500">{{agent.key}}</td>
+              <td class="text-sm font-medium text-gray-500">{{agent.hostname}}</td>
+              <td class="text-center">
+                <a class="btn btn-xs" href="">View</a>
+              </td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+//haaaaaa
+    $(document).on('change', '.checkbox', function() {
+      var id = $(this).data('id')
+      if (this.checked) {
+        var status = "PUT";
+      } else {
+        var status = "DELETE";
+      }
+      $.ajax({
+        type: status,
+        url: `/api/v1/groups/{{group.id}}/agents/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", `Successfully edited agents in the group`)
+          return(data)
+        },
+        error: function(errMsg) {
+          return(errMsg);
+        }
+      })
+    });
+    $("#agent-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+  });
+</script>
+{%endblock%}

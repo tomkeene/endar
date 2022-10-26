@@ -1,0 +1,266 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True,select=True) }}
+{% endblock %}
+
+{%block header_title%}
+<div class="breadcrumbs p-0">
+  <ul>
+    <li><a href="{{url_for("main.compliance_tasks")}}">Compliance Tasks</a></li>
+    <li class="text-primary">{{task.label}}</li>
+  </ul>
+</div>
+<p class="text-sm text-gray-500 font-medium">Validation asserts if something is in compliance. Enforcement then fixes it!</p>
+{%endblock%}
+{%block header_actions%}
+  <a href="{{url_for("main.compliance_tasks")}}" class="btn btn-xs modal-button">Back</a>
+{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-y-4">
+    <div class="card card-side bg-base-100">
+        <div class="card-body">
+            <div class="overflow-hidden sm:rounded-md">
+                <div class="bg-white px-4 py-5 sm:p-6">
+                    <div class="grid grid-cols-12 gap-6">
+                        <div class="col-span-6">
+                          <h2 class="card-title">Settings</h2>
+                        </div>
+                        <div class="col-span-6 text-end">
+                          <div class="badge badge-outline">{{task.name}}</div>
+                        </div>
+                        <div class="col-span-4">
+                            <label class="block text-sm font-medium text-gray-700">Label</label>
+                            <input type="text" value="{{task.label}}" id="label" placeholder="Validate and Enforce Encryption"
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">The display name (label) on the task</p>
+                        </div>
+                        <div class="col-span-4">
+                            <label class="block text-sm font-medium text-gray-700">Interval</label>
+                            <input type="number" value="{{task.interval or 300}}" id="interval" placeholder="300"
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">How often the compliance task will execute on the agent (in seconds)</p>
+                        </div>
+                        <div class="col-span-4">
+                            <label class="block text-sm font-medium text-gray-700">Timeout</label>
+                            <input type="number" value="{{task.timeout or 10}}" id="timeout" placeholder="10"
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">The timeout (in seconds) before the agent kills the compliance task</p>
+                        </div>
+                        <div class="col-span-6">
+                          <label for="tags" class="block text-sm font-medium text-gray-700">Tags</label>
+                          <select name="tags[]" data-placeholder="Search for tags..." class="chosen-select mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" multiple>
+                         {%if tags%}
+                         {% for tag,enabled in tags.items() %}
+                         {% if enabled %}
+                           <option value="{{tag.name}}" selected>{{tag.name}}</option>
+                         {% else %}
+                           <option value="{{tag.name}}">{{tag.name}}</option>
+                         {% endif %}
+                         {% endfor %}
+                         {% endif %}
+                         </select>
+                        </div>
+                        <div class="divider col-span-12">Validation</div>
+                        <div class="col-span-10">
+                          <h2 class="card-title">Validation
+                          {%if task.validate%}
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success float-right"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>
+                          {%else%}
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-error float-right"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          {%endif%}</h2>
+                        </div>
+                        <div class="col-span-2 text-end">
+                          <input id="validation-enabled" type="checkbox" class="toggle toggle-accent" {%if task.validation_enabled%}checked{%endif%} />
+                        </div>
+                        <div class="col-span-12">
+                          <div class="alert shadow-lg p-6">
+                            <div><span>Validation asserts something is/isn't true. For example, you may want to assert that disk encryption is enabled</span></div>
+                            <div class="flex-none">
+                              <button class="btn btn-sm modal-help btn-success text-white">Need Help?</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-span-12">
+                            <label for="validate-cmd" class="block text-sm font-medium text-gray-700">Command</label>
+                            <input type="text" value="{{task.validate["cmd"]}}" name="validate-cmd" id="validate-cmd" placeholder="powershell.exe -ExecutionPolicy Bypass -File {file}"
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">Full command that the agent will execute. Specify the {file} placeholder and the agent will download/execute the parameters below</p>
+                        </div>
+                        <div class="col-span-8">
+                            <label for="validate-url" class="block text-sm font-medium text-gray-700">(Optional) URL</label>
+                            <input type="text" value="{{task.validate["url"]}}" name="validate-url" id="validate-url" placeholder="https://some-domain.com/my-script.ps1"
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">(Optional) Http URL to an external file that you want the agent to execute. Only used when {file} placeholder is in the command</p>
+                        </div>
+                        <div class="col-span-4">
+                            <label for="validate-ext" class="block text-sm font-medium text-gray-700">(Optional) Filename Extension</label>
+                            <input type="text" value="{%if task.validate["file"]%}{{task.validate["file"].split(".")[1]}}{%endif%}" name="validate-ext" id="validate-ext" placeholder="ps1, py, sh, etc."
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">Specify the filename extension. For example, if this is a powershell script, input `ps1`. Only required if URL is specified</p>
+                        </div>
+                        <div class="divider col-span-12">Enforcement</div>
+                        <div class="col-span-10">
+                          <h2 class="card-title">Enforcement
+                          {%if task.enforce%}
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success float-right"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>
+                          {%else%}
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-error float-right"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          {%endif%}</h2>
+                        </div>
+                        <div class="col-span-2 text-end">
+                          <input id="enforcement-enabled" type="checkbox" class="toggle toggle-accent" {%if task.enforcement_enabled%}checked{%endif%} />
+                        </div>
+                        <div class="col-span-12">
+                          <div class="alert shadow-lg p-6">
+                            <div><span>If the validation block returns a non-zero exit code, enforcement will execute. For example, if validation says that encryption is not enabled, your enforcement code can enable it</span></div>
+                            <div class="flex-none">
+                              <button class="btn btn-sm modal-help btn-success text-white">Need Help?</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-span-12">
+                            <label for="enforce-cmd" class="block text-sm font-medium text-gray-700">Command</label>
+                            <input type="text" value="{{task.enforce["cmd"]}}" name="enforce-cmd" id="enforce-cmd" placeholder="powershell.exe -ExecutionPolicy Bypass -File {file}"
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">Full command that the agent will execute. Specify the {file} placeholder and the agent will download/execute the parameters below</p>
+                        </div>
+                        <div class="col-span-8">
+                            <label for="enforce-url" class="block text-sm font-medium text-gray-700">(Optional) URL</label>
+                            <input type="text" value="{{task.enforce["url"]}}" name="enforce-url" id="enforce-url" placeholder="https://some-domain.com/my-script.ps1"
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">(Optional) Http URL to an external file that you want the agent to execute. Only used when {file} placeholder is in the command</p>
+                        </div>
+                        <div class="col-span-4">
+                            <label for="enforce-ext" class="block text-sm font-medium text-gray-700">(Optional) Filename Extension</label>
+                            <input type="text" value="{%if task.enforce["file"]%}{{task.enforce["file"].split(".")[1]}}{%endif%}" name="enforce-ext" id="enforce-ext" placeholder="ps1, py, sh, etc."
+                                   class="mt-1 input-md block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <p class="mt-2 text-sm text-gray-500">Specify the filename extension. For example, if this is a powershell script, input `ps1`. Only required if URL is specified</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 py-3 text-right sm:px-6">
+                    <button
+                            class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 save-task">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="checkbox" id="help-modal" class="modal-toggle" />
+<label for="help-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">Help</h3>
+    <div class="py-4 mt-5 mockup-code">
+      <pre data-prefix="#"><code>Run a powershell command and do not trigger enforcement (exit code is 0)</code></pre> 
+      <pre data-prefix=">" class="text-success"><code>powershell.exe write-output "firewall is set!"</code></pre>
+      <pre data-prefix=">" class="text-white"></pre>
+      <pre data-prefix="#"><code>Run a powershell command and trigger enforcement (exit code is not 0)</code></pre> 
+      <pre data-prefix=">" class="text-success"><code>powershell.exe write-output "firewall is not set!"; exit 1</code></pre>
+      <pre data-prefix=">" class="text-white"></pre>
+      <pre data-prefix="#"><code>Run a powershell command with remote file</code></pre> 
+      <pre data-prefix="#"><code>With remote file, you need to specify {file} and the URL</code></pre> 
+      <pre data-prefix="#"><code>Be aware that you need the exit code of the file to be non-zero to trigger enforcement</code></pre> 
+      <pre data-prefix=">" class="text-success"><code>powershell.exe -ExecutionPolicy Bypass -File {file} -arg arg</code></pre>
+    </div>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%} 
+<script>
+  $(document).ready(function() {
+    $(".chosen-select").chosen({
+      no_results_text: "Oops, nothing found!"
+    })
+    $(document).on('click', '.modal-help', function() {
+      document.getElementById('help-modal').checked = true;
+    });
+    $(document).on('change', '#validation-enabled', function() {
+      $.ajax({
+        type: "PUT",
+        url: "/api/v1/compliance-tasks/{{task.id}}/validate/status",
+        data: JSON.stringify({"status":$("#validation-enabled").is(':checked')}),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", "Updated validation status")
+          return(data)
+        },
+        error: function(errMsg) {
+          createToast("error",errMsg["responseJSON"]["message"])
+          return(errMsg);
+        }
+      })
+    });
+    $(document).on('change', '#enforcement-enabled', function() {
+      $.ajax({
+        type: "PUT",
+        url: "/api/v1/compliance-tasks/{{task.id}}/enforce/status",
+        data: JSON.stringify({"status":$("#enforcement-enabled").is(':checked')}),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", "Updated enforcement status")
+          return(data)
+        },
+        error: function(errMsg) {
+          createToast("error",errMsg["responseJSON"]["message"])
+          return(errMsg);
+        }
+      })
+    });
+
+    $(document).on('click', '.save-task', function() {
+      if ( $("#validate-ext").val() || $("#validate-url").val()) {
+        if (!$("#validate-cmd").val().includes("{file}")) {
+          createToast("warning", "Validate URL and/or Ext will not be used. {file} placeholder was not found in the command")
+        }
+      }
+      if ( $("#enforce-ext").val() || $("#enforce-url").val()) {
+        if (!$("#enforce-cmd").val().includes("{file}")) {
+          createToast("warning", "Enforce URL and/or Ext will not be used. {file} placeholder was not found in the command")
+        }
+      }
+      var data = {
+        "validate": {
+          "cmd":$("#validate-cmd").val(),
+          "ext":$("#validate-ext").val(),
+          "url":$("#validate-url").val()
+        },
+        "enforce": {
+          "cmd":$("#enforce-cmd").val(),
+          "ext":$("#enforce-ext").val(),
+          "url":$("#enforce-url").val()
+        },
+        "label":$("#label").val(),
+        "interval":$("#interval").val(),
+        "timeout":$("#timeout").val(),
+        "tags":$(".chosen-select").chosen().val()
+      };
+//haaaaaaaaa
+      $.ajax({
+        type: "POST",
+        url: "/api/v1/compliance-tasks/{{task.id}}/config",
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", "Saved compliance task")
+          return(data)
+        },
+        error: function(errMsg) {
+          createToast("error",errMsg["responseJSON"]["message"])
+          return(errMsg);
+        }
+      })
+    });
+  });
+</script>
+{%endblock%}
