@@ -26,6 +26,26 @@ Monitoring Agents          |
 
 ### Getting Started
 
+##### Setting up the server with Docker
+
+The following instructions are to get you started very quickly. This is not for a production deployment. Outside of a lab, it is `highly` recommended to use a load balancer (with TLS) in front of the Endar server and forward the traffic.
+
+```
+$ git clone https://github.com/tomkeene/endar.git; cd endar
+$ docker build --tag endar_server .
+$ export SETUP_DB=yes;docker-compose up -d
+```
+
+The server should be running on `http://your-ip:5000`  
+The default email/password is `admin@example.com:admin`
+
+##### Setting up the agents
+The agents (Windows, Linux, MacOS) connect to the server.
+
+###### Deploy Windows agent
+###### Deploy Linux agent
+###### Deploy MacOS agent
+
 ### Roadmap
 - [ ] Improve monitoring to gather software, services, scheduled tasks (cronjobs), users and groups
 - [ ] Improve monitoring to collect process specific metrics
