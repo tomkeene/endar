@@ -19,6 +19,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - DOC_LINK=https://github.com/tomkeene/endar
       - VERSION=${VERSION:-1.0.0}
+      - APP_NAME=Endar
   postgres:
     container_name: postgres
     image: postgres
