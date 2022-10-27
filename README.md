@@ -36,15 +36,25 @@ $ docker build --tag endar_server .
 $ export SETUP_DB=yes;docker-compose up -d
 ```
 
-The server should be running on `http://your-ip:5000`  
+The server should be running on `http://<your-ip>:5000`  
 The default email/password is `admin@example.com:admin`
 
 ##### Setting up the agents
-The agents (Windows, Linux, MacOS) connect to the server.
+The agents (Windows, Linux, MacOS) connect to the server. Before you deploy the agents, you need the registration token and the server address. The registration token can be found in the Endar server at this URL `http://<your-ip>:5000/settings`
 
 ###### Deploy Windows agent
+```
+```
+
 ###### Deploy Linux agent
+```
+./endar.exe --key <registration-token> --server <http://<your-ip>:5000>
+```
+
 ###### Deploy MacOS agent
+```
+./endar.exe --key <registration-token> --server <http://<your-ip>:5000>
+```
 
 ### Roadmap
 - [ ] Improve monitoring to gather software, services, scheduled tasks (cronjobs), users and groups
