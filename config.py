@@ -2,7 +2,6 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    #SERVER_NAME = "localhost"
     UI_HOST = os.environ.get("UI_HOST")
     APP_NAME = os.environ.get("APP_NAME","App")
     APP_SUBTITLE = os.environ.get("APP_SUBTITLE","")
@@ -12,7 +11,7 @@ class Config:
     LOG_TYPE = os.environ.get("LOG_TYPE", "stream")
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
 
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'newllkjlreagjeraihgeorvhlkenvol3u4og98u4g893u4g0u3409u34add')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'change_secret_key')
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
