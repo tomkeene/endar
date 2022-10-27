@@ -9,7 +9,7 @@ class InitDbCommand(Command):
 
     def run(self):
         init_db()
-        print('Database has been initialized.')
+        print('[INFO] Database has been initialized.')
 
 def init_db():
     """ Initialize the database."""

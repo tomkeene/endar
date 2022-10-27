@@ -1,23 +1,15 @@
-#docker build -t dev .
-# install base
-FROM ubuntu
+FROM python:3.8-slim-buster
 
-# update the operating system:
-RUN apt-get update --fix-missing
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
-RUN apt install -y python3-pip libpq-dev libssl-dev
-
-# copy the folder to the container:
-ADD . /app
-
-# Define working directory:
 WORKDIR /app
 
-# Install the requirements
-RUN pip3 install -r /app/requirements.txt
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc \
+    && pip3 install psycopg2
 
-# expose tcp port 5000
-#EXPOSE 5000
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
 
-# default command: run the web server
+COPY . .
+
 CMD ["/bin/bash","run.sh"]
+#CMD ["gunicorn", "--bind", "0.0.0.0:5000", "flask_app:app"]
