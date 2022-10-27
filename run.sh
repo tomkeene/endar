@@ -7,6 +7,8 @@
 # Use SKIP_INI_CHECKS to start the service without checks
 
 if [ "$SKIP_INI_CHECKS" == "yes" ]; then
+  echo "[INFO] Skipping the health checks for database"
+  echo "[INFO] Starting the server"
   gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-"
 else
   # check if we can connect to the db
