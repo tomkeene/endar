@@ -122,7 +122,6 @@
 {%block extrajs%}
 <script>
   $(document).ready(function() {
-//haaaaaaa
     var table = $("#compliance-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
     table.on('click', '.validate', function() {
       var data = $(this)[0].innerHTML

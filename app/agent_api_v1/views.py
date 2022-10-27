@@ -3,6 +3,7 @@ from . import api
 from app.models import *
 from flask_login import login_required,current_user
 from app.utils.decorators import roles_required, has_valid_tenant_key, has_valid_tenant_and_agent
+from app.utils.misc import handle_collection
 import arrow
 import json
 import zlib
@@ -48,26 +49,10 @@ def post_compliance(agent):
     db.session.commit()
     return jsonify({"message":"ok"})
 
-#TODO - offload collection to a separate service
 @api.route("/collection",methods=["POST"])
 @has_valid_tenant_and_agent
 def data_collection(agent):
     data = zlib.decompress(request.data).decode("utf-8")
     record = json.loads(data)
-    data = record["data"]
-    if record["name"] == "get-performance":
-        data["agent_id"] = agent.id
-        data["tenant_id"] = agent.tenant_id
-        p = Performance(**data)
-        db.session.add(p)
-    elif record["name"] == "get-disk":
-        AgentDisk.query.filter(AgentDisk.agent_id == agent.id).delete()
-        db.session.commit()
-        for part in data:
-            part.pop("date_collected",None)
-            part["agent_id"] = agent.id
-            part["tenant_id"] = agent.tenant_id
-            d = AgentDisk(**part)
-            db.session.add(d)
-    db.session.commit()
+    handle_collection(record)
     return jsonify({"message":"ok"})

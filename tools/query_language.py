@@ -109,20 +109,3 @@ def parse_conditions(expr):
     if stack:
         raise ValueError("Unbalanced parentheses")
     return top
-
-def worker(alist):
-
-    for entry in alist:
-        if isinstance(entry, list):
-            yield list(worker(entry))
-        else:
-            yield entry.strip()
-
-#haaaaaaaaaaaa
-s = 'v1>10 and (v2 and (v3 or v4)) or v5'
-e=parse_conditions(s)
-#print(e)
-
-newlist = list(worker(e))
-
-print(newlist)

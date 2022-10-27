@@ -1,4 +1,5 @@
 from flask import current_app
+from app.models import *
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
 def verify_jwt(token):
@@ -34,6 +35,25 @@ def bytes2human(n, format="%(value).1f%(symbol)s"):
             value = float(n) / prefix[symbol]
             return format % locals()
     return format % dict(symbol=symbols[0], value=n)
+
+def handle_collection(record):
+    data = record["data"]
+    if record["name"] == "get-performance":
+        data["agent_id"] = agent.id
+        data["tenant_id"] = agent.tenant_id
+        p = Performance(**data)
+        db.session.add(p)
+    elif record["name"] == "get-disk":
+        AgentDisk.query.filter(AgentDisk.agent_id == agent.id).delete()
+        db.session.commit()
+        for part in data:
+            part.pop("date_collected",None)
+            part["agent_id"] = agent.id
+            part["tenant_id"] = agent.tenant_id
+            d = AgentDisk(**part)
+            db.session.add(d)
+    db.session.commit()
+    return True
 
 def request_to_json(request):
     data = {

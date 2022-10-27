@@ -217,10 +217,9 @@ class Policy(db.Model):
                 headers = {}
         else:
             headers = {}
-        # TODO - update
         collection_tasks = [
             {"name":"get-performance","url":"","headers":{},"get":5,"post":160,"hash_fields":[],"table":"performance"},
-            {"name":"get-disk","url":"","headers":{},"get":3600,"post":60,"hash_fields":["mount"],"table":"disk"}
+            {"name":"get-disk","url":"","headers":{},"get":3600,"post":1800,"hash_fields":["mount"],"table":"disk"}
         ]
         config = {
             "uuid": self.name,
@@ -477,7 +476,6 @@ class Agent(db.Model):
         return self.compliance_results.filter(ComplianceTaskResults.task_id == task_id).order_by(ComplianceTaskResults.id.desc()).first()
 
     def get_compliance_results_validate_percentage(self):
-        #TODO
         validate_rtn_results = self.compliance_results.with_entities(ComplianceTaskResults.validate_rtn_code,func.count(ComplianceTaskResults.validate_rtn_code)).group_by(ComplianceTaskResults.validate_rtn_code).all()
         for record in validate_rtn_results:
             rtn_code, rtn_code_count = record
@@ -732,7 +730,6 @@ class Logs(db.Model):
             return _query.paginate(page=page, per_page=10)
         return _query.limit(limit).all()
 
- # Agent data models #TODO
 class Performance(db.Model):
     __tablename__ = "performance"
     id = db.Column(db.Integer, primary_key=True)
