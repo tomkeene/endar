@@ -54,5 +54,5 @@ def post_compliance(agent):
 def data_collection(agent):
     data = zlib.decompress(request.data).decode("utf-8")
     record = json.loads(data)
-    handle_collection(record)
+    handle_collection(agent, record)
     return jsonify({"message":"ok"})
