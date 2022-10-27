@@ -1,6 +1,6 @@
 FILE=/etc/endar-test.txt
 if test -f "$FILE"; then
-    exit 1
+    exit 0
 fi
 
-exit 0
+exit 1
