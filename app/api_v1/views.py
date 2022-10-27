@@ -344,8 +344,6 @@ def update_compliance_task_config(id):
     task.label = data["label"] or "default"
     task.timeout = data["timeout"] or 10
     task.interval = data["interval"] or 300
-    task.validation_enabled = data["validation-enabled"]
-    task.enforcement_enabled = data["enforcement-enabled"]
     db.session.commit()
     return jsonify({"message":"ok"})
 
