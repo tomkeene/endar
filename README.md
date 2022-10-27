@@ -56,6 +56,39 @@ The agents (Windows, Linux, MacOS) connect to the server. Before you deploy the 
 ./endar.exe --key <registration-token> --server <http://<your-ip>:5000>
 ```
 
+### Creating your first policy
+We are going to create a policy and attach a very simple compliance task. In this task, we are going to check if a file exists and if it does not, we will create it. It will run every 300 seconds (5 minutes) and enforce the compliance. This compliance task will be a bash script so make sure you have a linux agent ready to go. 
+
+1.) In the Endar server, go to `Compliance` and select "New".  
+2.) View the image below as a reference but we will need to fill in the Validation and Enforcement sections  
+3.) Under Validation, the command will be `/bin/bash {file}`, the URL will be `https://raw.githubusercontent.com/tomkeene/endar/main/tools/demo-scripts/check-for-file.sh` and the filename extension is `sh`  
+4.) Under Enforcement, the command will also be `/bin/bash {file}`, the URL will be `https://raw.githubusercontent.com/tomkeene/endar/main/tools/demo-scripts/create-file.sh` and the filename extension is `sh`  
+5.) Select `Save` and also make sure the button toggles are enabled  
+
+Create the compliance task          |
+:-------------------------:|
+![](img/snip-1.PNG)  |
+
+Next, we are going to add the compliance task to a policy.  
+
+1.) Select `Policies` and `New` (give it a name)  
+2.) Edit the policy and select the check box of the compliance task to enable it (see figure below)  
+
+Add the compliance task to the policy          |
+:-------------------------:|
+![](img/snip-2.PNG)  |
+
+Lastly, we are going to add our policy to the default group.  
+
+1.) Head over to `Groups` and `View` the default group  
+2.) In the dropdown, select the policy you created and click `Save`. See figure below
+
+Add policy to the default group          |
+:-------------------------:|
+![](img/snip-3.PNG)  |
+
+All done! Now your agent will execute this compliance task and send the results. You can view the results by going to `Agents`, selecting your agent, and then clicking the `Compliance` tab on the left.
+
 ### Roadmap
 - [ ] Improve monitoring to gather software, services, scheduled tasks (cronjobs), users and groups
 - [ ] Improve monitoring to collect process specific metrics
