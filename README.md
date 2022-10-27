@@ -48,12 +48,12 @@ The agents (Windows, Linux, MacOS) connect to the server. Before you deploy the 
 
 ###### Deploy Linux agent
 ```
-./endar.exe --key <registration-token> --server <http://<your-ip>:5000>
+./endar.exe --key <registration-token> --server http://<your-ip>:5000
 ```
 
 ###### Deploy MacOS agent
 ```
-./endar.exe --key <registration-token> --server <http://<your-ip>:5000>
+./endar.exe --key <registration-token> --server http://<your-ip>:5000
 ```
 
 ### Creating your first policy
