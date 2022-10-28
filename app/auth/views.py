@@ -17,6 +17,7 @@ from . import auth
 from app import db
 from app.models import *
 from app.email import send_email
+from app.utils import misc
 import datetime
 
 logger = logging.getLogger(__name__)
@@ -56,33 +57,37 @@ def register():
         flash("You are already registered", "success")
         return redirect(next_page or url_for('main.home'))
 
+    email = None
+    result = None
+    if token := request.args.get("token"):
+        if result := User.verify_invite_token(token):
+            email = result["email"]
+
     if current_app.config["ENABLE_SELF_REGISTRATION"] != "1":
-        # check token in args
-        if not (token := request.args.get("token")):
+        if not token:
             flash("Missing token","warning")
             return redirect(url_for("auth.login"))
-        if not (result := User().verify_invite_token(token)):
+        if not result:
             flash("Invalid or expired token","warning")
             return redirect(url_for("auth.login"))
     if request.method == "POST":
-        email = request.form["email"]
+        email = email or request.form["email"]
+        username = request.form.get("username")
+        password = request.form["password"]
+        password2 = request.form["password2"]
+        if not misc.perform_pwd_checks(password, password_two=password2):
+            flash("Password did not pass checks", "warning")
+            return redirect(url_for("auth.register", token=token))
         if user := User.query.filter(User.email == email).first():
-            flash(_l(f'({email}) already exists'), 'info')
-            return redirect(url_for('auth.login'))
+            flash(f'({email}) already exists', 'warning')
+            return redirect(url_for('auth.register', token=token))
         else:
-            tenant = Tenant.query.first()
-            new_user = User(
-                email=email,
-                email_confirmed_at=datetime.datetime.utcnow(),
-                tenant_id=tenant.id
-            )
-            new_user.set_password(request.form["password"])
-            flash(_l(f'{email} you are registered now'), 'success')
-            db.session.add(new_user)
-            db.session.commit()
+            new_user = User.add(email, password=password,
+                username=username, confirmed=True, roles=["User"], create_role=True)
             login_user(new_user)
+            flash(f'{email}, you are now registered', 'success')
         return redirect(next_page or url_for('main.home'))
-    return render_template('auth/register.html')
+    return render_template('auth/register.html', email=email)
 
 @auth.route("/reset_password", methods=['GET', 'POST'])
 def reset_password():

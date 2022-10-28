@@ -532,6 +532,34 @@ class User(LogMixin,db.Model, UserMixin):
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     @staticmethod
+    def add(email, password=None, username=None, confirmed=None, tenant_id=None, roles=[], create_role=False):
+        email_confirmed_at = None
+        if not password:
+            password = uuid4().hex
+        if not tenant_id:
+            tenant_id = Tenant.query.first().id
+        if confirmed:
+            email_confirmed_at = datetime.utcnow()
+        if not username:
+            username = email
+        new_user = User(
+            email=email,
+            username=username,
+            email_confirmed_at=email_confirmed_at,
+            tenant_id=tenant_id
+        )
+        for role in roles:
+            if existing_role := Role.find_by_name(role):
+                new_user.roles.append(existing_role)
+            else:
+                if create_role:
+                    new_user.roles.append(Role(name=role))
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        return new_user
+
+    @staticmethod
     def verify_auth_token(token):
         data = misc.verify_jwt(token)
         if data is False:
@@ -547,11 +575,11 @@ class User(LogMixin,db.Model, UserMixin):
         data = misc.verify_jwt(token)
         if data is False:
             return False
-        return data["email"]
+        return data
 
     @staticmethod
-    def generate_invite_token(expiration=600):
-        data = {'email': self.email}
+    def generate_invite_token(email, expiration=600):
+        data = {'email': email}
         return misc.generate_jwt(data, expiration)
 
     def pretty_roles(self):

@@ -8,12 +8,12 @@
       {%if config.APP_SUBTITLE%}
       <p class="text-xs font-medium text-gray-500 text-center">{{config.APP_SUBTITLE}}</p>
       {%endif%}
-        <form class="form-signin" method="POST" role="form">
+        <form class="form-signin" method="POST" action="{{url_for("auth.register",token=request.args.get("token"))}}" role="form">
         <div class="form-control">
           <label class="label">
             <span class="label-text">Email</span>
           </label>
-          <input type="email" name="email" id="email" class="input input-bordered w-full max-w-xs" placeholder="{{ _('Email') }}" required>
+          <input type="email" name="email" id="email" class="input input-bordered w-full max-w-xs" placeholder="{{ _('Email') }}" required {%if email%}value={{email}} disabled{%endif%}>
         </div>
         <div class="form-control">
           <label class="label">
@@ -32,10 +32,7 @@
             <span class="label-text">Retype Password</span>
           </label>
           <input type="password" name="password2" id="password2" class="input input-bordered w-full max-w-xs" placeholder="{{ _('Retype password') }}" required>
-          <label class="label">
-            <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
-          </label>
-          <p class="text-primary text-xs font-medium ml-1 link link-hover"><a href="{{url_for("auth.login")}}">Already have an account? Sign in</a></p>
+          <p class="text-primary text-xs font-medium ml-1 link link-hover mt-1"><a href="{{url_for("auth.login")}}">Already have an account? Sign in</a></p>
         </div>
         <div class="form-control mt-6">
           <button class="btn btn-primary">Sign up</button>

@@ -2,6 +2,16 @@ from flask import current_app
 from app import models, db
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
+def perform_pwd_checks(password, password_two=None):
+    if not password:
+        return False
+    if password_two:
+        if password != password_two:
+            return False
+    if len(password) < 8:
+        return False
+    return True
+
 def verify_jwt(token):
     s = Serializer(current_app.config['SECRET_KEY'])
     try:
@@ -14,7 +24,7 @@ def verify_jwt(token):
         return False
     return data
 
-def generate_jwt(self, data={}, expiration = 6000):
+def generate_jwt(data={}, expiration = 6000):
     s = Serializer(current_app.config['SECRET_KEY'], expires_in = expiration)
     return s.dumps(data).decode('utf-8')
 

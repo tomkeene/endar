@@ -5,6 +5,7 @@ from app.models import *
 from flask_login import login_required,current_user
 from app.utils.decorators import roles_required
 from app.models import Role,User,Logs
+from app.email import send_email
 
 @main.route('/users', methods=['GET'])
 @roles_required("admin")
@@ -54,17 +55,39 @@ def user_profile(id):
         db.session.commit()
         flash("Updated user")
         Logs.add_log("{} updated the settings of user:{}".format(current_user.email,user.email),namespace="events")
+        return redirect(url_for("main.user_profile",id=user.id))
     roles = user.get_roles_for_form()
     return render_template('management/user_profile.html',user=user,roles=roles)
 
-@main.route('/users/add', methods=['GET','POST'])
+@main.route('/users/invite', methods=['GET','POST'])
 @roles_required("admin")
 def add_user():
-    token = None
+    url = None
     if request.method == "POST":
         email = request.form["email"]
         token = User().generate_invite_token(email)
-        token = "{}{}?token={}".format(request.host_url,"register",token)
-        flash("Provide the following link to the user.")
+        link = "{}{}?token={}".format(request.host_url,"register",token)
+        title = f"Invitation to {current_app.config['APP_NAME']}"
+        content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
+        send_email(
+            'User Invitation',
+            sender=current_app.config['MAIL_USERNAME'],
+            recipients=[email],
+            text_body=render_template(
+                'email/button_template.txt',
+                title=title,
+                content=content,
+                button_link=link
+            ),
+            html_body=render_template(
+                'email/button_template.html',
+                title=title,
+                content=content,
+                button_link=link
+            )
+        )
+        flash("The user will receive an email invite.")
         Logs.add_log("{} invited {} to the platform".format(current_user.email,email),namespace="events")
-    return render_template('add_user.html',token=token)
+        return redirect(url_for("main.add_user"))
+#haaaaaaaa
+    return render_template('management/add_user.html', url=url)

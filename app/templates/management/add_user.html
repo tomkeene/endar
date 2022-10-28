@@ -1,36 +1,30 @@
-{% extends "layouts/condensed.html" %}
+{% extends "layouts/basic.html" %}
 
-{%block contentHeader_pretitle%}<a href="{{url_for("main.users")}}">Users</a>{%endblock%}
-{%block contentHeader_title%}Add User{%endblock%}
+{%block header_title%}Invite User{%endblock%}
+{%block header_actions%}<a href="{{url_for("main.users")}}" class="btn btn-sm">Users</a>{%endblock%}
 
 {%block content%}
-  <div class="row row-cards">
-    <div class="col-12">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Users</h3>
-          </div>
-          <div class="card-body">
-              {%if not token%}
-              <form method="POST" action="{{url_for('main.add_user')}}">
-                <div class="form-group mb-3 ">
-                  <label class="form-label">Email</label>
-                  <div>
-                    <input type="text" class="form-control" name="email" placeholder="Add Email">
-                  </div>
+  <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">Invite User</h2>
+        <p class="text-sm font-medium text-gray-500">The user will receive an email invite.</p>
+        <form action="{{url_for('main.add_user')}}" method="POST">
+          <div class="overflow-hidden sm:rounded-md">
+            <div class="bg-white px-4 py-5">
+              <div class="grid grid-cols-6 gap-6">
+                <div class="col-span-6 sm:col-span-3">
+                  <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                  <input type="text" name="email" id="email" autocomplete="email" class="mt-1 input-md block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 </div>
-                <div class="form-footer">
-                  <button type="submit" class="btn btn-primary">Save</button>
-                </div>
-              </form>
-              {%else%}
-              <div class="alert alert-info" role="alert">
-                <h4 class="alert-title">Provide the following link to the user for registration. Expires in 10 minutes.</h4>
-                <div class="text-muted"><code>{{token}}</code></div>
               </div>
-              {%endif%}
+            </div>
+            <div class="px-4 py-3 text-right sm:px-6">
+              <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+            </div>
           </div>
-        </div>
+        </form>
+      </div>
     </div>
   </div>
-{%endblock%}
+{% endblock %}

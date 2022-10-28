@@ -25,29 +25,29 @@ def create_app(config_name="default"):
 
     @app.errorhandler(404)
     def not_found(e):
-        return render_template("layouts/errors/404.html"),404
+        return render_template("layouts/errors/default.html", title="Not found"), 404
 
     @app.errorhandler(500)
     def internal_error(e):
-        return render_template("layouts/errors/500.html"),500
+        return render_template("layouts/errors/default.html", title="Internal error"), 500
 
     @app.errorhandler(401)
     def unauthorized(e):
         if 'Authorization' in request.headers:
             return jsonify({"message":"unauthorized"}),401
-        return "bad"
+        return render_template("layouts/errors/default.html", title="Unauthorized"), 401
 
     @app.errorhandler(400)
     def malformed(e):
         if 'Authorization' in request.headers:
             return jsonify({"message":"malformed request"}),400
-        return "bad"
+        return render_template("layouts/errors/default.html", title="Client error"), 400
 
     @app.errorhandler(403)
     def forbidden(e):
         if 'Authorization' in request.headers:
             return jsonify({"message":"forbidden"}),403
-        return "bad"
+        return render_template("layouts/errors/default.html", title="Forbidden"), 403
 
     def is_user_admin(user=False):
         if not user:
@@ -71,21 +71,7 @@ def create_app(config_name="default"):
     return app
 
 def configure_models(app):
-    # Add all models
-    all_models = {}
-    classes, models, table_names = [], [], []
-    for clazz in db.Model._decl_class_registry.values():
-        try:
-            table_names.append(clazz.__tablename__)
-            classes.append(clazz)
-        except:
-            pass
-    for table in db.metadata.tables.items():
-        if table[0] in table_names:
-            all_models[table[0]] = classes[table_names.index(table[0])]
-            models.append(classes[table_names.index(table[0])])
     app.db = db
-    app.models = all_models
     return
 
 def configure_extensions(app):

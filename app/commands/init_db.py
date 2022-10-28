@@ -32,13 +32,12 @@ def create_default_users():
     default_password = current_app.config.get("DEFAULT_PASSWORD","admin")
     tenant = Tenant.query.filter(Tenant.name == current_app.config['DEFAULT_TENANT_LABEL']).first()
     if not User.query.filter(User.email == default_user).first():
-        user = User(
-            email=default_user,
-            email_confirmed_at=datetime.datetime.utcnow(),
-            tenant_id=tenant.id
+        user = User.add(
+            default_user,
+            password=default_password,
+            confirmed=True,
+            tenant_id=tenant.id,
+            roles=["Admin"],
+            create_role=True
         )
-        user.set_password(default_password)
-        user.roles.append(Role(name='Admin'))
-        db.session.add(user)
-        db.session.commit()
     return True
