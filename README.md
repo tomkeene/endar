@@ -1,5 +1,12 @@
 # Endar
 
+### Table of Contents
+1. [About](#about)
+2. [Main Features](#main-features)
+3. [Getting Started](#getting-started)
+4. [Creating your first policy](#creating-your-first-policy)
+5. [Roadmap](#roadmap)
+
 ### About
 Endar is an RMM (Remote monitoring and management) tool that supports Windows, Linux and MacOS. The Endar agent is a binary that runs on the endpoints and communicates with the Endar server. *Endar is currently in Alpha mode - while it works great, the server architecture does not support 100's of agents.*
 
@@ -48,12 +55,12 @@ The agents (Windows, Linux, MacOS) connect to the server. Before you deploy the 
 
 ###### Deploy Linux agent
 ```
-./endar.exe --key <registration-token> --server <http://<your-ip>:5000>
+./endar.exe --key <registration-token> --server http://<your-ip>:5000
 ```
 
 ###### Deploy MacOS agent
 ```
-./endar.exe --key <registration-token> --server <http://<your-ip>:5000>
+./endar.exe --key <registration-token> --server http://<your-ip>:5000
 ```
 
 ### Creating your first policy
