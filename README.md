@@ -50,14 +50,16 @@ The server should be running on `http://<your-ip>:5000`
 The default email/password is `admin@example.com:admin`
 
 ##### Setting up the agents
-The agents (Windows, Linux, MacOS) connect to the server. Before you deploy the agents, you need the registration token and the server address. The registration token can be found in the Endar server at this URL `http://<your-ip>:5000/settings`
+You can download the exe from the [releases page here](https://github.com/tomkeene/endar/releases). The agents (Windows, Linux, MacOS) connect to the server. Before you deploy the agents, you need the registration token and the server address. The registration token can be found in the Endar server at this URL `http://<your-ip>:5000/settings`
 
 ###### Deploy Windows agent
 ```
+# documentation coming soon!
 ```
 
 ###### Deploy Linux agent
 ```
+# may have to run chmod +x endar.exe
 ./endar.exe --key <registration-token> --server http://<your-ip>:5000
 ```
 
