@@ -104,4 +104,5 @@ All done! Now your agent will execute this compliance task and send the results.
 - [ ] Improve monitoring to collect process specific metrics
 - [ ] Improve deployment - currently a binary is provided by OS specific installers would be nice
 - [ ] Improve architecture - the current deployment architecture will not support hundreds of agents. Its probably easiest to just leverage managed solutions of a popular provider such as GCP.  
-- [ ] - Add other "RMM" features (one-click install of apps, etc)
+- [ ] Add other "RMM" features (one-click install of apps, etc)
+- [ ] Upload source code of clients to repo
