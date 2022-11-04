@@ -179,7 +179,7 @@
             {%endif%}
             <tr>
               <td class="text-sm font-medium text-gray-500">{{part.device}}</td>
-              <td class="text-sm font-medium text-gray-500">{{part.mount}}</td>
+              <td class="text-sm font-medium text-gray-500"><div class="truncate w-6/12">{{part.mount}}</div></td>
               <td class="text-sm font-medium text-gray-500">{{part.total}}</td>
               <td class="text-sm font-medium text-gray-500"><progress class="progress progress-{{used_color}} w-56" value="{{used_percent}}" max="100"></progress></td>
               <td class="text-sm font-medium text-gray-500">{{part.free}}</td>
