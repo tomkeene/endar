@@ -7,8 +7,11 @@
 4. [Creating your first policy](#creating-your-first-policy)
 5. [Roadmap](#roadmap)
 
+:bulb: :zap: :bulb: [View the video of Endar here!](https://drive.google.com/file/d/1CJolj-nP7z19-5DtQQRwgZvGTq9Ej75c/view)
+
 ### About
 Endar is an RMM (Remote monitoring and management) tool that supports Windows, Linux and MacOS. The Endar agent is a binary that runs on the endpoints and communicates with the Endar server. *Endar is currently in Alpha mode - while it works great, the server architecture does not support 100's of agents.*
+
 
 Home Dashboard          |
 :-------------------------:|
